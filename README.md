@@ -7,7 +7,7 @@ Thanks to [mmuman](https://github.com/mmuman/starboard-lsadrv)
 
 Thanks to [mijuanlo](https://github.com/mijuanlo/starboard)
 
-## Install process
+## INSTALL
 
     sudo apt-get update -y
     
