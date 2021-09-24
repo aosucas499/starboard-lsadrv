@@ -509,7 +509,11 @@ WaitForIsoStreamDone(struct lsadrv_iso_stream_object *stream)
 	struct lsadrv_ring_buffer *ringBuffer;
 	//DECLARE_WAITQUEUE(wait, current);
 	unsigned char waitbuf[64];	/* sufficient size */
+	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0))
+	wait_queue_entry_t *wait = (wait_queue_entry_t *) waitbuf;
+	#else
 	wait_queue_t *wait = (wait_queue_t *) waitbuf;
+	#endif
 	struct lsadrv_device *xdev;
 	unsigned int pendingTransfers;
 
@@ -780,7 +784,11 @@ int lsadrv_read_iso_buffer(
 	struct lsadrv_ring_buffer *ringBuffer;
 	//DECLARE_WAITQUEUE(wait, current);
 	unsigned char waitbuf[64];	/* sufficient size */
+	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0))
+        wait_queue_entry_t *wait = (wait_queue_entry_t *) waitbuf;
+	#else
 	wait_queue_t *wait = (wait_queue_t *) waitbuf;
+	#endif
 	unsigned int recSize = PacketSize + sizeof(struct lsadrv_iso_packet_desc);
 	unsigned int bytesToRead = PacketCount * recSize;
 	unsigned int bytesRead = 0;

@@ -25,8 +25,11 @@
 #include <linux/kernel.h> 	/* for linux kernel */
 #include <linux/slab.h>
 #include <linux/version.h>
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 12, 0)
+#include <linux/uaccess.h>
+#elif
 #include <asm/uaccess.h>
-
+#endif
 #include <linux/sched.h>
 
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 22)) & (LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 31))
@@ -119,20 +122,36 @@ void lsadrv_free_waitqueue_head(wait_queue_head_t *q)
 
 void lsadrv_init_waitqueue_entry(void *buf, int size)
 {
+	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0))
+        wait_queue_entry_t *wait = (wait_queue_entry_t *) buf;
+	if (size < sizeof(wait_queue_entry_t)){
+		BUG();
+	}
+	memset(wait, 0, sizeof(wait_queue_entry_t));
+	#else
 	wait_queue_t *wait = (wait_queue_t *) buf;
 	if (size < sizeof(wait_queue_t)) {
 		BUG();
 	}
 	memset(wait, 0, sizeof(wait_queue_t));
+	#endif
 	init_waitqueue_entry(wait, current);
 }
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0))
+void lsadrv_add_wait_queue(wait_queue_head_t *q, wait_queue_entry_t *wait)
+#else
 void lsadrv_add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait)
+#endif
 {
 	add_wait_queue(q, wait);
 }
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0))
+void lsadrv_remove_wait_queue(wait_queue_head_t *q, wait_queue_entry_t *wait)
+#else
 void lsadrv_remove_wait_queue(wait_queue_head_t *q, wait_queue_t *wait)
+#endif
 {
 	remove_wait_queue(q, wait);
 }
@@ -179,7 +198,11 @@ void lsadrv_spin_unlock(spinlock_t *lock, unsigned long *flags)
 
 int lsadrv_write_ok(void *addr, unsigned long size)
 {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(5, 0, 0)
+	return access_ok(addr, size);
+#else
 	return access_ok(VERIFY_WRITE, addr, size);
+#endif
 }
 
 unsigned long lsadrv_copy_to_user(void *to, const void *from, unsigned long n)

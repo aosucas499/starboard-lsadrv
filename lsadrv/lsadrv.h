@@ -152,8 +152,13 @@ signed long lsadrv_msec_to_jiffies(__u32 msec);
 void lsadrv_init_waitqueue_head(wait_queue_head_t **q);
 void lsadrv_free_waitqueue_head(wait_queue_head_t *q);
 void lsadrv_init_waitqueue_entry(void *buf, int size);
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0))
+void lsadrv_add_wait_queue(wait_queue_head_t *q, wait_queue_entry_t *wait);
+void lsadrv_remove_wait_queue(wait_queue_head_t *q, wait_queue_entry_t *wait);
+#else
 void lsadrv_add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait);
 void lsadrv_remove_wait_queue(wait_queue_head_t *q, wait_queue_t *wait);
+#endif
 void lsadrv_wake_up_interruptible(wait_queue_head_t *q);
 void lsadrv_modlock(struct lsadrv_device *xdev);
 void lsadrv_modunlock(struct lsadrv_device *xdev);
