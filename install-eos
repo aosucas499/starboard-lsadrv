@@ -1,0 +1,12 @@
+#! /bin/bash
+
+clear
+
+# Copiar las fuentes del driver en el sistema
+sudo cp -r /home/$USER/guadalinex/starboard-lsadrv /usr/src
+
+# Compila e instala el driver en el kernel del sistema
+sudo apt-get install -y build-essential dkms linux-headers-$(uname -r) 
+cd /home/$USER
+sudo dkms install starboard-lsadrv
+sudo modprobe lsadrv
